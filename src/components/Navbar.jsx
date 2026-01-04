@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import nameLogo from '../assets/nameLogo.png';
+import nameLogo from '../assets/name_logo.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
