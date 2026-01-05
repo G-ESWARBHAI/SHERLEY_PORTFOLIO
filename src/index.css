@@ -12,6 +12,17 @@
     --cream-warm: #FAF7F2;
   }
 
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Account for fixed navbar */
+  }
+
+  @media (max-width: 768px) {
+    html {
+      scroll-padding-top: 60px; /* Smaller padding on mobile */
+    }
+  }
+
   body {
     font-family: 'Inter', sans-serif;
     color: var(--navy-primary);
