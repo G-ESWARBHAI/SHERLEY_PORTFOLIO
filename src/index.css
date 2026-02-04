@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+:root {
+    --navy-primary: #0A1929;
+    --navy-secondary: #1B2B4A;
+    --gold-accent: #D4AF37;
+    --gold-light: #F5A623;
+    --cream-neutral: #F8F9FA;
+    --cream-warm: #FAF7F2;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Account for fixed navbar */
+  }
+
+  @media (max-width: 768px) {
+    html {
+      scroll-padding-top: 60px; /* Smaller padding on mobile */
+    }
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    color: var(--navy-primary);
+    background-color: var(--cream-neutral);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .text-navy-primary {
+    color: var(--navy-primary);
+  }
+  
+  .text-navy-secondary {
+    color: var(--navy-secondary);
+}
+
+  .text-gold-accent {
+    color: var(--gold-accent);
+  }
+  
+  .bg-navy-primary {
+    background-color: var(--navy-primary);
+}
+  
+  .bg-navy-secondary {
+    background-color: var(--navy-secondary);
+}
+
+  .bg-gold-accent {
+    background-color: var(--gold-accent);
+  }
+  
+  .bg-cream-neutral {
+    background-color: var(--cream-neutral);
+  }
+  
+  .bg-cream-warm {
+    background-color: var(--cream-warm);
+  }
+  
+  .border-gold-accent {
+    border-color: var(--gold-accent);
+}
+
+  /* Custom Scrollbar for Expertise Section */
+  .expertise-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+  .expertise-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+  }
+  .expertise-scroll::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+  }
+  .expertise-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+  /* Fade in up animation for Awards */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+}
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+  /* Timeline fade animation */
+  @keyframes timelineFade {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+  }
+
+  .animate-timeline-fade {
+    animation: timelineFade 0.8s ease-out;
+  }
+
+  /* Timeline line draw animation */
+  @keyframes drawLine {
+    from {
+      height: 0;
+  }
+    to {
+      height: 100%;
+    }
+  }
+
+  .animate-draw-line {
+    animation: drawLine 2s ease-out;
+  }
+}
