@@ -130,7 +130,8 @@ const Ventures = () => {
 
         {/* Timeline */}
         <div className="relative">
-          {/* Center Line - Animated */}
+
+          {/* Center Line - Animated (Desktop) */}
           <motion.div
             className="absolute left-1/2 top-0 h-full w-[2px] bg-[#D4AF37]/40 -translate-x-1/2 hidden md:block"
             initial={{ scaleY: 0 }}
@@ -193,6 +194,23 @@ const Ventures = () => {
               },
             };
 
+            // Connecting line variants - draws from current dot to next
+            const connectingLineVariants = {
+              hidden: { 
+                scaleY: 0,
+                opacity: 0
+              },
+              visible: { 
+                scaleY: 1,
+                opacity: 1,
+                transition: {
+                  duration: 0.8,
+                  delay: index * 0.15 + 0.6,
+                  ease: "easeOut",
+                }
+              }
+            };
+
             return (
               <motion.div
                 key={index}
@@ -203,13 +221,42 @@ const Ventures = () => {
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
               >
+                {/* Connecting Line to Next Dot (Mobile) - Positioned at parent level to span properly */}
+                {index < ventures.length - 1 && (
+                  <motion.div
+                    className="absolute top-[3.5rem] w-[2px] bg-gradient-to-b from-[#D4AF37]/70 via-[#D4AF37]/50 to-[#D4AF37]/30 md:hidden z-10"
+                    style={{
+                      left: '1rem', // Fixed position for the line
+                      height: 'calc(100% + 4.5rem)', // Spans from current card to next card including margin
+                      transformOrigin: 'top',
+                    }}
+                    variants={connectingLineVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.1 }}
+                  />
+                )}
+
                 {/* Card */}
                 <motion.div
-                  className="w-full md:w-1/2 px-4"
+                  className="w-full md:w-1/2 px-4 md:px-4 pl-8 md:pl-4 relative"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
                 >
+                  {/* Mobile Timeline Dot - Left Side - Centered on the line */}
+                  <motion.div
+                    className="absolute top-6 w-5 h-5 bg-[#D4AF37] rounded-full shadow-[0_0_15px_#D4AF37] border-2 border-[#020617] md:hidden z-20"
+                    style={{
+                      left: '-1rem', // Position: line is at 1rem from parent, card padding is 2rem, so -1rem from card aligns center with line
+                      transform: 'translateX(-50%)', // Center the dot perfectly on the line
+                    }}
+                    variants={dotVariants}
+                  >
+                    {/* Inner glow effect */}
+                    <div className="absolute inset-0 bg-[#D4AF37] rounded-full animate-pulse opacity-75"></div>
+                  </motion.div>
+
                   {/* Mobile Card - Slide up animation */}
                   <motion.div
                     className="bg-[#020617]/80 backdrop-blur-xl border border-white/10 rounded-xl p-5 sm:p-6 relative overflow-hidden group md:hidden"
@@ -362,7 +409,7 @@ const Ventures = () => {
                   </motion.div>
                 </motion.div>
 
-                {/* Timeline Dot - Animated */}
+                {/* Timeline Dot - Animated (Desktop) */}
                 <motion.div
                   className="absolute md:left-1/2 md:-translate-x-1/2 w-4 h-4 bg-[#D4AF37] rounded-full shadow-[0_0_20px_#D4AF37] hidden md:block z-20"
                   variants={dotVariants}

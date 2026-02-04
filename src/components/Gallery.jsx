@@ -1,79 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// Import placeholder image - Replace these imports with actual gallery images
-import ceoImage from '../assets/ceo_image.png';
+import useGalleryStore from '../store/galleryStore';
 
 const Gallery = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const {
+    images,
+    categories,
+    filter,
+    selectedImage,
+    isLoading,
+    error,
+    fetchImages,
+    fetchCategories,
+    setFilter,
+    setSelectedImage,
+    getFilteredImages,
+  } = useGalleryStore();
 
-  // Gallery images - Replace these with actual images from assets
-  // To add new images: 1) Import them at the top, 2) Add them to this array
-  const galleryImages = [
-    {
-      id: 1,
-      src: ceoImage, // Replace with: import gallery1 from '../assets/gallery1.jpg';
-      title: 'Professional Event',
-      category: 'Business',
-    },
-    {
-      id: 2,
-      src: ceoImage, // Replace with: import gallery2 from '../assets/gallery2.jpg';
-      title: 'Global Conference',
-      category: 'Networking',
-    },
-    {
-      id: 3,
-      src: ceoImage, // Replace with: import gallery3 from '../assets/gallery3.jpg';
-      title: 'Award Ceremony',
-      category: 'Recognition',
-    },
-    {
-      id: 4,
-      src: ceoImage, // Replace with: import gallery4 from '../assets/gallery4.jpg';
-      title: 'Corporate Meeting',
-      category: 'Business',
-    },
-    {
-      id: 5,
-      src: ceoImage, // Replace with: import gallery5 from '../assets/gallery5.jpg';
-      title: 'International Summit',
-      category: 'Networking',
-    },
-    {
-      id: 6,
-      src: ceoImage, // Replace with: import gallery6 from '../assets/gallery6.jpg';
-      title: 'Leadership Forum',
-      category: 'Business',
-    },
-    {
-      id: 7,
-      src: ceoImage, // Replace with: import gallery7 from '../assets/gallery7.jpg';
-      title: 'Investment Conference',
-      category: 'Business',
-    },
-    {
-      id: 8,
-      src: ceoImage, // Replace with: import gallery8 from '../assets/gallery8.jpg';
-      title: 'Global Partnership',
-      category: 'Networking',
-    },
-    {
-      id: 9,
-      src: ceoImage, // Replace with: import gallery9 from '../assets/gallery9.jpg';
-      title: 'Entrepreneurship Event',
-      category: 'Business',
-    },
-  ];
+  // Fetch images and categories on component mount
+  useEffect(() => {
+    fetchImages({ active: 'true' });
+    fetchCategories();
+  }, [fetchImages, fetchCategories]);
 
-  const [filter, setFilter] = useState('All');
+  // Get filtered images
+  const filteredImages = getFilteredImages();
 
-  // Get unique categories
-  const categories = ['All', ...new Set(galleryImages.map(img => img.category))];
-
-  // Filter images
-  const filteredImages = filter === 'All' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === filter);
+  // Get unique categories for filter buttons
+  const filterCategories = ['All', ...categories];
 
   // Animation variants
   const containerVariants = {
@@ -149,7 +103,7 @@ const Gallery = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {categories.map((category) => (
+          {filterCategories.map((category) => (
             <button
               key={category}
               onClick={() => setFilter(category)}
@@ -164,28 +118,50 @@ const Gallery = () => {
           ))}
         </motion.div>
 
+        {/* Loading State */}
+        {isLoading && filteredImages.length === 0 && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
+            <p className="text-white/70 mt-4">Loading gallery images...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-400 mb-4">Error: {error}</p>
+            <button
+              onClick={() => fetchImages({ active: 'true' })}
+              className="px-4 py-2 bg-[#D4AF37] text-[#0A1929] rounded-lg hover:bg-[#F5A623] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          <AnimatePresence>
-            {filteredImages.map((image, index) => (
-              <motion.div
-                key={`${filter}-${image.id}-${index}`}
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative overflow-hidden rounded-xl cursor-pointer"
-                onClick={() => setSelectedImage(image)}
-              >
-              {/* Image Container */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-[#0F172A]">
-                <img
-                  src={typeof image.src === 'string' ? image.src : image.src}
-                  alt={image.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
+        {!isLoading && filteredImages.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            <AnimatePresence>
+              {filteredImages.map((image, index) => (
+                <motion.div
+                  key={`${filter}-${image._id || image.id}-${index}`}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="group relative overflow-hidden rounded-xl cursor-pointer"
+                  onClick={() => setSelectedImage(image)}
+                >
+                {/* Image Container */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#0F172A]">
+                  <img
+                    src={image.imageUrl || image.thumbnailUrl || image.src}
+                    alt={image.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
                 
                 {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1929]/90 via-[#0A1929]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -210,6 +186,14 @@ const Gallery = () => {
             ))}
           </AnimatePresence>
         </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && filteredImages.length === 0 && !error && (
+          <div className="text-center py-12">
+            <p className="text-white/70 text-lg">No images found in this category.</p>
+          </div>
+        )}
       </div>
 
       {/* Lightbox Modal */}
@@ -243,7 +227,7 @@ const Gallery = () => {
               {/* Image */}
               <div className="relative rounded-xl overflow-hidden border-2 border-[#D4AF37]/30 shadow-2xl">
                 <img
-                  src={selectedImage.src}
+                  src={selectedImage.imageUrl || selectedImage.src}
                   alt={selectedImage.title}
                   className="w-full h-auto max-h-[80vh] object-contain"
                 />
@@ -256,34 +240,38 @@ const Gallery = () => {
               </div>
 
               {/* Navigation Arrows */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
-                  const prevIndex = currentIndex > 0 ? currentIndex - 1 : filteredImages.length - 1;
-                  setSelectedImage(filteredImages[prevIndex]);
-                }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 text-white p-3 rounded-full transition-all duration-300"
-                aria-label="Previous image"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
-                  const nextIndex = currentIndex < filteredImages.length - 1 ? currentIndex + 1 : 0;
-                  setSelectedImage(filteredImages[nextIndex]);
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 text-white p-3 rounded-full transition-all duration-300"
-                aria-label="Next image"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              {filteredImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const currentIndex = filteredImages.findIndex(img => (img._id || img.id) === (selectedImage._id || selectedImage.id));
+                      const prevIndex = currentIndex > 0 ? currentIndex - 1 : filteredImages.length - 1;
+                      setSelectedImage(filteredImages[prevIndex]);
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 text-white p-3 rounded-full transition-all duration-300"
+                    aria-label="Previous image"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const currentIndex = filteredImages.findIndex(img => (img._id || img.id) === (selectedImage._id || selectedImage.id));
+                      const nextIndex = currentIndex < filteredImages.length - 1 ? currentIndex + 1 : 0;
+                      setSelectedImage(filteredImages[nextIndex]);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 text-white p-3 rounded-full transition-all duration-300"
+                    aria-label="Next image"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}

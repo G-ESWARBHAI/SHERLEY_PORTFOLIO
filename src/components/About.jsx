@@ -1,7 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ceoImage from '../assets/ceo_image.png';
 
 const About = () => {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const countRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            setHasAnimated(true);
+            // Animate from 0 to 17
+            const duration = 2000; // 2 seconds
+            const steps = 50;
+            const increment = 17 / steps;
+            const stepDuration = duration / steps;
+            let current = 0;
+
+            const timer = setInterval(() => {
+              current += increment;
+              if (current >= 17) {
+                setCount(17);
+                clearInterval(timer);
+              } else {
+                setCount(Math.floor(current));
+              }
+            }, stepDuration);
+
+            return () => clearInterval(timer);
+          }
+        });
+      },
+      { threshold: 0.3 } // Trigger when 30% of the element is visible
+    );
+
+    if (countRef.current) {
+      observer.observe(countRef.current);
+    }
+
+    return () => {
+      if (countRef.current) {
+        observer.unobserve(countRef.current);
+      }
+    };
+  }, [hasAnimated]);
+
   return (
     <section id="about" className="relative py-20 lg:py-32 bg-gradient-to-b from-[#1E293B] to-[#0F172A] overflow-hidden pt-5 lg:pt-10">
       {/* Decorative Background Elements */}
@@ -50,8 +95,13 @@ const About = () => {
 
             {/* Highlight Boxes */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
-              <div className="bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-lg p-4 hover:bg-white/10 hover:border-[#D4AF37]/40 transition-all duration-300">
-                <div className="text-2xl sm:text-3xl font-bold text-[#D4AF37] mb-2">17+</div>
+              <div 
+                ref={countRef}
+                className="bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-lg p-4 hover:bg-white/10 hover:border-[#D4AF37]/40 transition-all duration-300"
+              >
+                <div className="text-2xl sm:text-3xl font-bold text-[#D4AF37] mb-2 transition-all duration-300">
+                  {count}+
+                </div>
                 <div className="text-white/80 text-sm uppercase tracking-wide font-medium">Years Experience</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm border border-[#D4AF37]/20 rounded-lg p-4 hover:bg-white/10 hover:border-[#D4AF37]/40 transition-all duration-300">
